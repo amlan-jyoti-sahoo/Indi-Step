@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
 import { incrementQuantity, decrementQuantity, removeFromCart, CartItem } from '../../store/cartSlice';
 import { Image } from 'expo-image';
-import { Trash2, Minus, Plus } from 'lucide-react-native';
+import { Trash2, Minus, Plus, ChevronLeft } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Cart() {
@@ -77,8 +77,13 @@ export default function Cart() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Shopping Cart</Text>
-        <Text style={styles.headerSubtitle}>{cartItems.length} items</Text>
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <ChevronLeft size={24} color={COLORS.text} />
+        </Pressable>
+        <View>
+          <Text style={styles.headerTitle}>Shopping Cart</Text>
+          <Text style={styles.headerSubtitle}>{cartItems.length} items</Text>
+        </View>
       </View>
 
       <FlatList
@@ -144,6 +149,12 @@ const styles = StyleSheet.create({
   header: {
     padding: SPACING.m,
     backgroundColor: COLORS.background,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButton: {
+    marginRight: SPACING.m,
+    padding: SPACING.xs,
   },
   headerTitle: {
     fontSize: 24,

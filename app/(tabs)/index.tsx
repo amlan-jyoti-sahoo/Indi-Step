@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { Product, Category } from '../../database';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { Heart, ShoppingBag } from 'lucide-react-native';
+import { Heart, ShoppingBag, Search } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -115,6 +115,11 @@ export default function Home() {
           </MotiText>
           
           <View style={styles.headerIcons}>
+             <Link href="/listing/all" asChild>
+               <Pressable style={styles.iconButton}>
+                 <Search size={24} color={COLORS.text} />
+               </Pressable>
+             </Link>
              <Link href="/wishlist" asChild>
                <Pressable style={styles.iconButton}>
                  <Heart size={24} color={COLORS.text} />
@@ -165,9 +170,11 @@ export default function Home() {
 
           <View style={styles.heroOverlay}>
             <Text style={styles.heroTitle}>NEW SEASON</Text>
-            <Pressable style={styles.heroButton}>
-              <Text style={styles.heroButtonText}>Shop Now</Text>
-            </Pressable>
+            <Link href="/listing/all" asChild>
+                <Pressable style={styles.heroButton}>
+                <Text style={styles.heroButtonText}>Shop Now</Text>
+                </Pressable>
+            </Link>
           </View>
         </View>
 

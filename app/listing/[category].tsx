@@ -1,10 +1,10 @@
-import { View, Text, FlatList, StyleSheet, Pressable, LayoutAnimation, Platform, UIManager, Modal, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Pressable, LayoutAnimation, Platform, UIManager, Modal, ScrollView, TouchableOpacity, Dimensions, TextInput } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { PRODUCTS_COLLECTION, Product } from '../../database';
 import { COLORS, SPACING, FONTS } from '../../constants/theme';
 import ProductCard from '../../components/ProductCard';
 import ProductSkeleton from '../../components/ProductSkeleton';
-import { ChevronLeft, Filter, X } from 'lucide-react-native';
+import { ChevronLeft, Filter, X, Search } from 'lucide-react-native';
 import { useState, useEffect, useMemo } from 'react';
 import Slider from '@react-native-community/slider';
 
@@ -24,6 +24,9 @@ export default function Listing() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   
+  // Search State
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Filter States
   const [showFilter, setShowFilter] = useState(false);
   const [maxPrice, setMaxPrice] = useState(10000);
@@ -35,9 +38,13 @@ export default function Listing() {
 
   // Calculate stats for filters
   const { allBrands, maxProductPrice } = useMemo(() => {
-    const categoryProducts = PRODUCTS_COLLECTION.filter(
-      (p) => p.category.toLowerCase() === categoryName.toLowerCase()
-    );
+    let categoryProducts = PRODUCTS_COLLECTION;
+    
+    if (categoryName.toLowerCase() !== 'all') {
+      categoryProducts = PRODUCTS_COLLECTION.filter(
+        (p) => p.category.toLowerCase() === categoryName.toLowerCase()
+      );
+    }
     
     const brands = Array.from(new Set(categoryProducts.map(p => p.name.split(' ')[0])));
     const maxP = Math.max(...categoryProducts.map(p => p.price), 10000);
@@ -50,11 +57,15 @@ export default function Listing() {
      const loadData = async () => {
        setLoading(true);
        // Simulate network delay
-       await new Promise(resolve => setTimeout(resolve, 1500));
+       await new Promise(resolve => setTimeout(resolve, 500)); // Reduced delay for better UX
        
-       const categoryProducts = PRODUCTS_COLLECTION.filter(
-         (p) => p.category.toLowerCase() === categoryName.toLowerCase()
-       );
+       let categoryProducts = PRODUCTS_COLLECTION;
+       if (categoryName.toLowerCase() !== 'all') {
+          categoryProducts = PRODUCTS_COLLECTION.filter(
+            (p) => p.category.toLowerCase() === categoryName.toLowerCase()
+          );
+       }
+
        setProducts(categoryProducts);
        setFilteredProducts(categoryProducts);
        setMaxPrice(Math.max(...categoryProducts.map(p => p.price), 10000));
@@ -64,10 +75,20 @@ export default function Listing() {
      loadData();
   }, [categoryName]);
 
-  // Apply Filters
-  const applyFilters = () => {
+  // Live Search Filtering
+  useEffect(() => {
+    if (loading) return;
+    
     let result = products;
 
+    // Search Query
+    if (searchQuery.trim().length > 0) {
+       result = result.filter(p => 
+          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          p.category.toLowerCase().includes(searchQuery.toLowerCase())
+       );
+    }
+    
     // Price Filter
     result = result.filter(p => p.price <= priceRange);
 
@@ -76,9 +97,13 @@ export default function Listing() {
       result = result.filter(p => selectedBrands.includes(p.name.split(' ')[0]));
     }
     
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setFilteredProducts(result);
-    setShowFilter(false);
+  }, [searchQuery, priceRange, selectedBrands, products, loading]);
+
+  // Apply Filters (kept for explicit filter modal actions if needed, but above effect handles it live now mostly)
+  const applyFilters = () => {
+     setShowFilter(false);
+     // logic is now in useEffect responding to state changes
   };
 
   const toggleBrand = (brand: string) => {
@@ -89,24 +114,46 @@ export default function Listing() {
     }
   };
 
-  // handleRemoveProduct removed as we now show all products
-  
   // Capitalize category name for header
-  const headerTitle = categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase();
+  const isAll = categoryName.toLowerCase() === 'all';
+  const headerTitle = isAll 
+    ? 'All Products' 
+    : categoryName.charAt(0).toUpperCase() + categoryName.slice(1).toLowerCase();
 
   return (
     <View style={styles.container}>
       <Stack.Screen 
          options={{ 
-            headerTitle: headerTitle,
+            headerTitle: isAll ? '' : headerTitle,
             headerTitleStyle: { fontFamily: FONTS.bold, fontSize: 16 },
             headerLeft: () => (
-               <Pressable onPress={() => router.back()} style={{ marginLeft: 0 }}>
-                  <ChevronLeft color={COLORS.primary} size={24} />
-               </Pressable>
+               <View style={styles.headerRow}>
+                   <Pressable onPress={() => router.back()} style={{ marginRight: SPACING.s }}>
+                      <ChevronLeft color={COLORS.primary} size={24} />
+                   </Pressable>
+                   
+                   {/* Search Bar - Visible ONLY if 'all' */}
+                   {isAll && (
+                     <View style={styles.searchContainer}>
+                        <Search size={18} color={COLORS.textLight} />
+                        <TextInput 
+                          style={styles.searchInput}
+                          placeholder="Search..."
+                          value={searchQuery}
+                          onChangeText={setSearchQuery}
+                          placeholderTextColor={COLORS.textLight}
+                        />
+                        {searchQuery.length > 0 && (
+                          <Pressable onPress={() => setSearchQuery('')}>
+                             <X size={16} color={COLORS.textLight} />
+                          </Pressable>
+                        )}
+                     </View>
+                   )}
+               </View>
             ),
             headerRight: () => (
-              <Pressable onPress={() => setShowFilter(true)} style={{ marginRight: 0 }}>
+              <Pressable onPress={() => setShowFilter(true)} style={styles.filterBtn}>
                  <Filter color={COLORS.primary} size={24} />
               </Pressable>
            ),
@@ -219,6 +266,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1, 
+    // width: Dimensions.get('window').width - 100, // Explicit width control if needed
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    borderRadius: SPACING.l,
+    paddingHorizontal: SPACING.s,
+    paddingVertical: 6,
+    flex: 1,
+    marginLeft: SPACING.xs,
+    marginRight: SPACING.s, 
+    // width: 240, // Removed fixed width to allow flex expansion
+    minWidth: '70%', // Force wider width
+  },
+  searchInput: {
+    flex: 1,
+    fontFamily: FONTS.medium,
+    fontSize: 14,
+    color: COLORS.text,
+    marginLeft: 6,
+    padding: 0, // Reset default padding
+  },
+  filterBtn: {
+    marginRight: 0,
+    backgroundColor: COLORS.surface,
+    padding: 6,
+    borderRadius: SPACING.s,
   },
   content: {
     padding: SPACING.m,
