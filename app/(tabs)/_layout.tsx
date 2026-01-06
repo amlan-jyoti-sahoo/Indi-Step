@@ -1,51 +1,39 @@
 import { Tabs } from 'expo-router';
 import { ShoppingBag, Home, User } from 'lucide-react-native';
-import { View } from 'react-native';
 import { COLORS } from '../../constants/theme';
+import TabBar from '../../components/TabBar';
 
 export default function TabLayout() {
   return (
     <Tabs
+      tabBar={props => <TabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 25,
-          left: 20,
-          right: 20,
-          elevation: 0,
-          backgroundColor: COLORS.secondary,
-          borderRadius: 30,
-          height: 60,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: 0.1,
-          shadowRadius: 10,
-          borderTopWidth: 0,
-          alignItems: 'center',
-          justifyContent: 'center',
-        },
         tabBarShowLabel: false,
-        tabBarActiveTintColor: COLORS.primary,
+        tabBarActiveTintColor: COLORS.secondary,
         tabBarInactiveTintColor: COLORS.textLight,
+        // Hide standard style as we use custom
+        tabBarStyle: {
+            display: 'none', 
+        }
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color }) => <Home size={24} color={color} />,
+          tabBarIcon: ({ color, size, focused }) => <Home size={size || 24} color={color} strokeWidth={focused ? 3 : 2} />,
         }}
       />
       <Tabs.Screen
         name="cart"
         options={{
-          tabBarIcon: ({ color }) => <ShoppingBag size={24} color={color} />,
+          tabBarIcon: ({ color, size, focused }) => <ShoppingBag size={size || 24} color={color} strokeWidth={focused ? 3 : 2} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          tabBarIcon: ({ color }) => <User size={24} color={color} />,
+          tabBarIcon: ({ color, size, focused }) => <User size={size || 24} color={color} strokeWidth={focused ? 3 : 2} />,
         }}
       />
     </Tabs>

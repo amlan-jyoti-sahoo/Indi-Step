@@ -1,16 +1,21 @@
 export const COLORS = {
-  primary: '#000000',
-  secondary: '#FFFFFF',
+  primary: '#000000', // Black for primary actions/text
+  secondary: '#FFFFFF', // White for secondary/contrasts
   text: '#000000',
-  textLight: '#888888',
-  background: '#FFFFFF',
-  surface: '#F5F5F5',
-  border: '#E0E0E0',
-  accent: '#000000',
-  error: '#FF0000',
+  textLight: '#64748B', // Slate 500
+  background: '#FFFFFF', // White background
+  surface: '#F1F5F9', // Light gray surface
+  border: '#E2E8F0', // Light border
+  accent: '#000000', 
+  error: '#EF4444',
   white: '#FFFFFF',
   black: '#000000',
-  gray: '#CCCCCC',
+  gray: '#94A3B8',
+  
+  // Gradient Colors (Unused but kept for type safety if needed, set to neutral)
+  gradientStart: '#FFFFFF', 
+  gradientMiddle: '#F8FAFC',
+  gradientEnd: '#F1F5F9',
 };
 
 export const SPACING = {
