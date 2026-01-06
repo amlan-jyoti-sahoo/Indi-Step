@@ -6,6 +6,9 @@ import { COLORS, SPACING, FONTS, SHADOWS } from '../constants/theme';
 import { Product } from '../database';
 import { Heart } from 'lucide-react-native';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { toggleWishlist } from '../store/wishlistSlice';
 
 interface ProductCardProps {
   product: Product;
@@ -14,9 +17,17 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, index }: ProductCardProps) {
   const [isReady, setIsReady] = useState(false);
+  const dispatch = useDispatch();
+  const isLiked = useSelector((state: RootState) => 
+    state.wishlist.items.some(item => item.id === product.id)
+  );
 
   const handleLoad = () => {
     setIsReady(true);
+  };
+
+  const handleToggleWishlist = () => {
+    dispatch(toggleWishlist(product));
   };
 
   return (
@@ -34,10 +45,13 @@ export default function ProductCard({ product, index }: ProductCardProps) {
             contentFit="cover" 
             transition={300}
             onLoad={handleLoad}
-            // removed onError hiding logic
           />
-          <Pressable style={styles.heart}>
-             <Heart size={20} color={COLORS.primary} />
+          <Pressable style={styles.heart} onPress={handleToggleWishlist}>
+             <Heart 
+               size={20} 
+               color={isLiked ?  COLORS.error : COLORS.primary} 
+               fill={isLiked ? COLORS.error : 'transparent'}
+             />
           </Pressable>
           <View style={styles.details}>
             <Text style={styles.name} numberOfLines={1}>{product.name}</Text>

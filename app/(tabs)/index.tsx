@@ -9,6 +9,9 @@ import ProductCard from '../../components/ProductCard';
 import { MotiView, MotiText } from 'moti';
 import { useEffect, useState } from 'react';
 import { Product, Category } from '../../database';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { Heart, ShoppingBag } from 'lucide-react-native';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -19,6 +22,9 @@ if (Platform.OS === 'android') {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  
+  const cartCount = useSelector((state: RootState) => state.cart.items.reduce((sum, item) => sum + item.quantity, 0));
+  const wishlistCount = useSelector((state: RootState) => state.wishlist.items.length);
 
   useEffect(() => {
     // Simulate fetching
@@ -48,6 +54,29 @@ export default function Home() {
           >
             INDI-STEP.
           </MotiText>
+          
+          <View style={styles.headerIcons}>
+             <Link href="/wishlist" asChild>
+               <Pressable style={styles.iconButton}>
+                 <Heart size={24} color={COLORS.text} />
+                 {wishlistCount > 0 && (
+                   <View style={styles.badge}>
+                     <Text style={styles.badgeText}>{wishlistCount}</Text>
+                   </View>
+                 )}
+               </Pressable>
+             </Link>
+             <Link href="/cart" asChild>
+               <Pressable style={styles.iconButton}>
+                 <ShoppingBag size={24} color={COLORS.text} />
+                 {cartCount > 0 && (
+                   <View style={styles.badge}>
+                     <Text style={styles.badgeText}>{cartCount}</Text>
+                   </View>
+                 )}
+               </Pressable>
+             </Link>
+          </View>
         </View>
 
         {/* Hero Section */}
@@ -115,6 +144,32 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: SPACING.l,
     paddingVertical: SPACING.m,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    gap: SPACING.m,
+  },
+  iconButton: {
+    padding: SPACING.xs,
+  },
+  badge: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10, // Use explicit number for perfect circle fallback
+    width: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: COLORS.white,
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   logo: {
     fontSize: 28,

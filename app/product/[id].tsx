@@ -8,7 +8,8 @@ import { MotiView, MotiText } from 'moti';
 import { useState } from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withRepeat, withSequence } from 'react-native-reanimated';
 import { ChevronLeft, Heart, Share2 } from 'lucide-react-native';
-import { useCart } from '../../context/CartContext';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../store/cartSlice';
 
 const { width } = Dimensions.get('window');
 
@@ -18,7 +19,7 @@ export default function ProductDetail() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const product = PRODUCTS_COLLECTION.find((p) => p.id === id);
-  const { addToCart } = useCart();
+  const dispatch = useDispatch();
   
   const [selectedSize, setSelectedSize] = useState('US 9');
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
@@ -32,7 +33,7 @@ export default function ProductDetail() {
       withSpring(1.1),
       withSpring(1)
     );
-    if (product) addToCart(product);
+    if (product) dispatch(addToCart(product));
   };
 
   const buttonStyle = useAnimatedStyle(() => ({

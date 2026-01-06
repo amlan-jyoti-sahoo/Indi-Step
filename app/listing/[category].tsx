@@ -98,7 +98,7 @@ export default function Listing() {
     <View style={styles.container}>
       <Stack.Screen 
          options={{ 
-            title: headerTitle,
+            headerTitle: headerTitle,
             headerTitleStyle: { fontFamily: FONTS.bold, fontSize: 16 },
             headerLeft: () => (
                <Pressable onPress={() => router.back()} style={{ marginLeft: 0 }}>

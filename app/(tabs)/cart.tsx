@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS, FONTS } from '../../constants/theme';
-import { useCart } from '../../context/CartContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
 
 export default function Cart() {
-  const { count } = useCart();
+  const count = useSelector((state: RootState) => state.cart.items.reduce((sum, item) => sum + item.quantity, 0));
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Cart ({count})</Text>
