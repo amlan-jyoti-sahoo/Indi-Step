@@ -12,6 +12,12 @@ import { Product, Category } from '../../database';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { Heart, ShoppingBag } from 'lucide-react-native';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withTiming, 
+  Easing
+} from 'react-native-reanimated';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -19,9 +25,62 @@ if (Platform.OS === 'android') {
   }
 }
 
+const KenBurnsImage = ({ uri, isVisible }: { uri: string, isVisible: boolean }) => {
+  const scale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    if (isVisible) {
+      scale.value = 1.2; 
+      translateX.value = 0;
+      translateY.value = 0;
+      opacity.value = 0;
+
+      const duration = Math.floor(Math.random() * 5000) + 5000;
+      const endScale = 1.4 + Math.random() * 0.3;
+      const moveX = (Math.random() - 0.5) * 50;
+      const moveY = (Math.random() - 0.5) * 50;
+
+      opacity.value = withTiming(1, { duration: 1000 });
+      scale.value = withTiming(endScale, { duration, easing: Easing.linear });
+      translateX.value = withTiming(moveX, { duration, easing: Easing.linear });
+      translateY.value = withTiming(moveY, { duration, easing: Easing.linear });
+    } else {
+      opacity.value = withTiming(0, { duration: 1000 });
+    }
+  }, [isVisible, uri]);
+
+  const style = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [
+      { scale: scale.value },
+      { translateX: translateX.value },
+      { translateY: translateY.value }
+    ]
+  }));
+
+  return (
+    <Animated.View style={[StyleSheet.absoluteFill, style]}>
+       <Image source={{ uri }} style={styles.heroImage} contentFit="cover" transition={1000} />
+    </Animated.View>
+  );
+};
+
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    if (products.length < 2) return;
+    const intervalId = setInterval(() => {
+       const nextIndex = Math.floor(Math.random() * products.length);
+       setCurrentImageIndex(nextIndex);
+    }, 6000);
+    return () => clearInterval(intervalId);
+  }, [products]);
   
   const cartCount = useSelector((state: RootState) => state.cart.items.reduce((sum, item) => sum + item.quantity, 0));
   const wishlistCount = useSelector((state: RootState) => state.wishlist.items.length);
@@ -79,25 +138,38 @@ export default function Home() {
           </View>
         </View>
 
+
+
+
+  
         {/* Hero Section */}
-        <MotiView 
-          from={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring' }}
-          style={styles.hero}
-        >
-          <Image 
-            source={{ uri: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80' }} 
-            style={styles.heroImage} 
-            contentFit="cover"
-          />
+        <View style={styles.hero}>
+           {products.length > 0 ? (
+             <>
+
+               {products.map((p, index) => (
+                 <KenBurnsImage 
+                    key={p.id} 
+                    uri={p.image} 
+                    isVisible={index === currentImageIndex} 
+                 />
+               ))}
+             </>
+           ) : (
+             <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1552346154-21d32810aba3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80' }} 
+                style={styles.heroImage} 
+                contentFit="cover"
+              />
+           )}
+
           <View style={styles.heroOverlay}>
             <Text style={styles.heroTitle}>NEW SEASON</Text>
             <Pressable style={styles.heroButton}>
               <Text style={styles.heroButtonText}>Shop Now</Text>
             </Pressable>
           </View>
-        </MotiView>
+        </View>
 
 
 
