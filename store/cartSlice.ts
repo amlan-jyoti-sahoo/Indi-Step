@@ -3,6 +3,7 @@ import { Product } from '../database';
 
 export interface CartItem extends Product {
   quantity: number;
+  size: string;
 }
 
 interface CartState {
@@ -17,27 +18,40 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart: (state, action: PayloadAction<Product>) => {
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+    addToCart: (state, action: PayloadAction<{ product: Product; size: string }>) => {
+      const { product, size } = action.payload;
+      const existingItem = state.items.find(item => item.id === product.id && item.size === size);
+      
       if (existingItem) {
         existingItem.quantity += 1;
       } else {
-        state.items.push({ ...action.payload, quantity: 1 });
+        state.items.push({ ...product, quantity: 1, size });
       }
     },
-    removeFromCart: (state, action: PayloadAction<string>) => {
-      // Logic: Decrease quantity or remove if 1? 
-      // User context implies removing usually, but let's just remove the item or decrement?
-      // "removeFromCart" usually means removing the line item.
-      state.items = state.items.filter(item => item.id !== action.payload);
+    removeFromCart: (state, action: PayloadAction<{ id: string; size: string }>) => {
+      state.items = state.items.filter(
+        item => !(item.id === action.payload.id && item.size === action.payload.size)
+      );
     },
-    decrementQuantity: (state, action: PayloadAction<string>) => {
-      const item = state.items.find(item => item.id === action.payload);
+    incrementQuantity: (state, action: PayloadAction<{ id: string; size: string }>) => {
+      const item = state.items.find(
+        item => item.id === action.payload.id && item.size === action.payload.size
+      );
+      if (item) {
+        item.quantity += 1;
+      }
+    },
+    decrementQuantity: (state, action: PayloadAction<{ id: string; size: string }>) => {
+      const item = state.items.find(
+        item => item.id === action.payload.id && item.size === action.payload.size
+      );
       if (item) {
         if (item.quantity > 1) {
           item.quantity -= 1;
         } else {
-          state.items = state.items.filter(i => i.id !== action.payload);
+          state.items = state.items.filter(
+            i => !(i.id === action.payload.id && i.size === action.payload.size)
+          );
         }
       }
     },
@@ -47,5 +61,5 @@ const cartSlice = createSlice({
   },
 });
 
-export const { addToCart, removeFromCart, decrementQuantity, clearCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, incrementQuantity, decrementQuantity, clearCart } = cartSlice.actions;
 export default cartSlice.reducer;

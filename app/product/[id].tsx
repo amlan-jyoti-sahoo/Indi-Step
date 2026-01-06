@@ -7,9 +7,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { MotiView, MotiText } from 'moti';
 import { useState } from 'react';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withRepeat, withSequence } from 'react-native-reanimated';
-import { ChevronLeft, Heart, Share2 } from 'lucide-react-native';
-import { useDispatch } from 'react-redux';
-import { addToCart } from '../../store/cartSlice';
+import { ChevronLeft, Heart, Share2, Minus, Plus } from 'lucide-react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart, incrementQuantity, decrementQuantity } from '../../store/cartSlice';
+import { toggleWishlist } from '../../store/wishlistSlice';
+import { RootState } from '../../store/store';
 
 const { width } = Dimensions.get('window');
 
@@ -27,13 +29,44 @@ export default function ProductDetail() {
   // Animation for button pulse
   const buttonScale = useSharedValue(1);
 
+  // Check if item is already in cart
+  const cartItem = useSelector((state: RootState) => 
+    state.cart.items.find((item) => item.id === id && item.size === selectedSize)
+  );
+  const isInCart = !!cartItem;
+
+  // Check if item is in wishlist
+  const isInWishlist = useSelector((state: RootState) => 
+    state.wishlist.items.some((item) => item.id === id)
+  );
+
+  const handleToggleWishlist = () => {
+    if (product) {
+        dispatch(toggleWishlist(product));
+    }
+  };
+
   const handleAddToCart = () => {
     buttonScale.value = withSequence(
       withSpring(0.9),
       withSpring(1.1),
       withSpring(1)
     );
-    if (product) dispatch(addToCart(product));
+    if (product && !isInCart) {
+        dispatch(addToCart({ product, size: selectedSize }));
+    }
+  };
+
+  const handleIncrement = () => {
+    if (product) dispatch(incrementQuantity({ id: product.id, size: selectedSize }));
+  };
+
+  const handleDecrement = () => {
+    if (product) dispatch(decrementQuantity({ id: product.id, size: selectedSize }));
+  };
+
+  const handleGoToCart = () => {
+      router.push('/(tabs)/cart');
   };
 
   const buttonStyle = useAnimatedStyle(() => ({
@@ -54,8 +87,12 @@ export default function ProductDetail() {
             <Pressable style={styles.iconButton}>
               <Share2 color={COLORS.primary} size={24} />
             </Pressable>
-            <Pressable style={[styles.iconButton, { marginLeft: SPACING.s }]}>
-              <Heart color={COLORS.primary} size={24} />
+            <Pressable style={[styles.iconButton, { marginLeft: SPACING.s }]} onPress={handleToggleWishlist}>
+              <Heart 
+                color={isInWishlist ? COLORS.error : COLORS.primary} 
+                fill={isInWishlist ? COLORS.error : 'transparent'}
+                size={24} 
+              />
             </Pressable>
           </View>
         </View>
@@ -144,9 +181,27 @@ export default function ProductDetail() {
       {/* Floating Bottom Bar */}
       <SafeAreaView edges={['bottom']} style={styles.footer}>
         <Animated.View style={[styles.addToCartContainer, buttonStyle]}>
-           <Pressable style={styles.addToCartButton} onPress={handleAddToCart}>
-             <Text style={styles.addToCartText}>Add to Cart - ₹{product.price.toLocaleString('en-IN')}</Text>
-           </Pressable>
+           {isInCart ? (
+               <View style={styles.actionRow}>
+                   <Pressable style={styles.goToCartButton} onPress={handleGoToCart}>
+                       <Text style={styles.goToCartText}>Go to Cart</Text>
+                   </Pressable>
+                   
+                   <View style={styles.quantityControl}>
+                       <Pressable onPress={handleDecrement} style={styles.qtyBtn}>
+                           <Minus size={20} color={COLORS.text} />
+                       </Pressable>
+                       <Text style={styles.qtyText}>{cartItem.quantity}</Text>
+                       <Pressable onPress={handleIncrement} style={styles.qtyBtn}>
+                           <Plus size={20} color={COLORS.text} />
+                       </Pressable>
+                   </View>
+               </View>
+           ) : (
+               <Pressable style={styles.addToCartButton} onPress={handleAddToCart}>
+                 <Text style={styles.addToCartText}>Add to Cart - ₹{product.price.toLocaleString('en-IN')}</Text>
+               </Pressable>
+           )}
         </Animated.View>
       </SafeAreaView>
     </View>
@@ -290,8 +345,54 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
   },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: SPACING.m,
+  },
+  goToCartButton: {
+    flex: 1,
+    backgroundColor: COLORS.secondary,
+    paddingVertical: 18,
+    borderRadius: 30,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+  quantityControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surface,
+    padding: 6,
+    borderRadius: 30,
+    height: 60,
+  },
+  qtyBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...SHADOWS.light,
+  },
+  qtyText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: SPACING.m,
+    minWidth: 20,
+    textAlign: 'center',
+  },
   addToCartText: {
     color: COLORS.secondary,
+    fontSize: 18,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  goToCartText: {
+    color: COLORS.primary,
     fontSize: 18,
     fontWeight: 'bold',
     textTransform: 'uppercase',
