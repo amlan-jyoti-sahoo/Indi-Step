@@ -335,6 +335,7 @@ const styles = StyleSheet.create({
     borderTopColor: COLORS.border,
     paddingHorizontal: SPACING.m,
     paddingTop: SPACING.m,
+    paddingBottom: SPACING.l,
   },
   addToCartContainer: {
     width: '100%',

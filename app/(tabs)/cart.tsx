@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, FlatList, Pressable, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
 import { COLORS, FONTS, SPACING, SHADOWS } from '../../constants/theme';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
@@ -8,6 +9,7 @@ import { Trash2, Minus, Plus } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function Cart() {
+  const router = useRouter();
   const cartItems = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
 
@@ -46,7 +48,9 @@ export default function Cart() {
 
   const renderItem = ({ item }: { item: CartItem }) => (
     <View style={styles.cartItem}>
-      <Image source={{ uri: item.image }} style={styles.itemImage} contentFit="cover" />
+      <Pressable onPress={() => router.push(`/product/${item.id}`)}>
+        <Image source={{ uri: item.image }} style={styles.itemImage} contentFit="cover" />
+      </Pressable>
       <View style={styles.itemDetails}>
         <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
         <Text style={styles.itemCategory}>{item.category} • Size: {item.size}</Text>
