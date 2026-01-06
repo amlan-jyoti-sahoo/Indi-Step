@@ -46,7 +46,7 @@ export default function Home() {
             key="logo"
             style={styles.logo}
           >
-            STORE.
+            INDI-STEP.
           </MotiText>
         </View>
 

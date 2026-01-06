@@ -10,25 +10,13 @@ import { useState } from 'react';
 interface ProductCardProps {
   product: Product;
   index: number;
-  onRemove?: (id: string) => void;
 }
 
-export default function ProductCard({ product, index, onRemove }: ProductCardProps) {
+export default function ProductCard({ product, index }: ProductCardProps) {
   const [isReady, setIsReady] = useState(false);
-  const [hasError, setHasError] = useState(false);
-
-  // If error occurred, return null (or keep hidden until removed by parent)
-  if (hasError) return null;
 
   const handleLoad = () => {
     setIsReady(true);
-  };
-
-  const handleError = () => {
-    setHasError(true);
-    if (onRemove) {
-      onRemove(product.id);
-    }
   };
 
   return (
@@ -46,7 +34,7 @@ export default function ProductCard({ product, index, onRemove }: ProductCardPro
             contentFit="cover" 
             transition={300}
             onLoad={handleLoad}
-            onError={handleError} 
+            // removed onError hiding logic
           />
           <Pressable style={styles.heart}>
              <Heart size={20} color={COLORS.primary} />
@@ -67,7 +55,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.m,
   },
   card: {
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white, // Ensure white background
     borderRadius: SPACING.m,
     overflow: 'hidden',
     ...SHADOWS.light,
@@ -81,7 +69,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: SPACING.s,
     right: SPACING.s,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.white, // Ensure white background
     padding: 6,
     borderRadius: 20,
     ...SHADOWS.light,
@@ -94,6 +82,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.bold,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: COLORS.text,
   },
   price: {
     fontSize: 14,

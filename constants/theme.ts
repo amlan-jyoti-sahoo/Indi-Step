@@ -8,6 +8,9 @@ export const COLORS = {
   border: '#E0E0E0',
   accent: '#000000',
   error: '#FF0000',
+  white: '#FFFFFF',
+  black: '#000000',
+  gray: '#CCCCCC',
 };
 
 export const SPACING = {
@@ -21,6 +24,7 @@ export const SPACING = {
 
 export const FONTS = {
   regular: 'System', // Use system sans-serif for now, implied bold via weight
+  medium: 'System',
   bold: 'System',
 };
 
