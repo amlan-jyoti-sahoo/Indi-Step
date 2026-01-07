@@ -3,15 +3,16 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Link } from 'expo-router';
-import { COLORS, SPACING, FONTS, SIZES } from '../../constants/theme';
+import { COLORS, SPACING, FONTS, SIZES, SHADOWS } from '../../constants/theme';
 import { Database } from '../../database/service';
 import ProductCard from '../../components/ProductCard';
 import { MotiView, MotiText } from 'moti';
 import { useEffect, useState } from 'react';
 import { Product, Category } from '../../database';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { toggleWishlist } from '../../store/wishlistSlice';
 import { RootState } from '../../store/store';
-import { Heart, ShoppingBag, Search } from 'lucide-react-native';
+import { Heart, ShoppingBag, Search, ArrowRight, Truck, RotateCcw, ShieldCheck, Mail } from 'lucide-react-native';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
@@ -65,6 +66,49 @@ const KenBurnsImage = ({ uri, isVisible }: { uri: string, isVisible: boolean }) 
     <Animated.View style={[StyleSheet.absoluteFill, style]}>
        <Image source={{ uri }} style={styles.heroImage} contentFit="cover" transition={1000} />
     </Animated.View>
+  );
+};
+
+const TrendingItem = ({ item, index }: { item: Product; index: number }) => {
+  const isLiked = useSelector((state: RootState) => 
+    state.wishlist.items.some(i => i.id === item.id)
+  );
+  const dispatch = useDispatch();
+
+  return (
+    <MotiView 
+        from={{ opacity: 0, translateX: 50 }}
+        animate={{ opacity: 1, translateX: 0 }}
+        transition={{ delay: index * 100 }}
+        style={styles.horizontalProductCard}
+    >
+         <Link href={`/product/${item.id}`} asChild>
+            <Pressable style={styles.inlineCard}>
+              <Image 
+                source={{ uri: item.image }} 
+                style={styles.inlineCardImage} 
+                contentFit="cover" 
+              />
+              <Pressable 
+                style={styles.inlineHeart} 
+                onPress={(e) => {
+                    e.stopPropagation();
+                    dispatch(toggleWishlist(item));
+                }}
+              >
+                 <Heart 
+                   size={20} 
+                   color={isLiked ? COLORS.error : COLORS.primary} 
+                   fill={isLiked ? COLORS.error : 'transparent'}
+                 />
+              </Pressable>
+              <View style={styles.inlineDetails}>
+                <Text style={styles.inlineName} numberOfLines={1}>{item.name}</Text>
+                <Text style={styles.inlinePrice}>₹{item.price.toLocaleString('en-IN')}</Text>
+              </View>
+            </Pressable>
+          </Link>
+    </MotiView>
   );
 };
 
@@ -204,6 +248,81 @@ export default function Home() {
           </View>
         </View>
 
+        {/* Promo Banner */}
+        <MotiView 
+          from={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'timing', duration: 800, delay: 200 }}
+          style={styles.promoBanner}
+        >
+            <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1556906781-9a412961d289?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80' }} 
+                style={styles.promoImage} 
+                contentFit="cover"
+            />
+            <View style={styles.promoOverlay}>
+                <Text style={styles.promoTitle}>MID-SEASON SALE</Text>
+                <Text style={styles.promoSubtitle}>UP TO 50% OFF ON SELECTED ITEMS</Text>
+                <Link href="/listing/all" asChild>
+                    <Pressable style={styles.promoButton}>
+                        <Text style={styles.promoButtonText}>Shop Sale</Text>
+                        <ArrowRight size={20} color={COLORS.white} />
+                    </Pressable>
+                </Link>
+            </View>
+        </MotiView>
+
+        {/* Trending Now (Horizontal Scroll) */}
+        <View style={styles.section}>
+             <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Trending Now</Text>
+                <Pressable onPress={() => {}}> 
+                     <Text style={styles.seeAll}>See All</Text>
+                </Pressable>
+             </View>
+             <FlatList 
+                horizontal
+                data={products.slice(0, 5)} // Show top 5
+                keyExtractor={item => item.id}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.horizontalScroll}
+                renderItem={({ item, index }) => <TrendingItem item={item} index={index} />}
+             />
+        </View>
+
+        {/* Member Benefits */}
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Why Shop With Us?</Text>
+            <View style={styles.benefitsGrid}>
+                <View style={styles.benefitItem}>
+                    <Truck size={32} color={COLORS.primary} />
+                    <Text style={styles.benefitTitle}>Free Delivery</Text>
+                    <Text style={styles.benefitDesc}>On all orders over ₹5000</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                    <RotateCcw size={32} color={COLORS.primary} />
+                    <Text style={styles.benefitTitle}>30 Days Return</Text>
+                    <Text style={styles.benefitDesc}>No questions asked returns</Text>
+                </View>
+                <View style={styles.benefitItem}>
+                    <ShieldCheck size={32} color={COLORS.primary} />
+                    <Text style={styles.benefitTitle}>Secure Payment</Text>
+                    <Text style={styles.benefitDesc}>100% secure transaction</Text>
+                </View>
+            </View>
+        </View>
+
+        {/* Newsletter / Footer */}
+        <View style={styles.newsletterSection}>
+            <Mail size={40} color={COLORS.white} style={{ marginBottom: SPACING.m }} />
+            <Text style={styles.newsletterTitle}>JOIN THE CLUB</Text>
+            <Text style={styles.newsletterDesc}>Subscribe to get special offers, free giveaways, and once-in-a-lifetime deals.</Text>
+            
+            <Pressable style={styles.newsletterButton}>
+                <Text style={styles.newsletterButtonText}>SUBSCRIBE</Text>
+            </Pressable>
+        </View>
+
         {/* Spacer for Floating Tab Bar */}
         <View style={{ height: 100 }} />
 
@@ -304,7 +423,8 @@ const styles = StyleSheet.create({
     paddingLeft: SPACING.m,
   },
   horizontalProductCard: {
-    width: 260,
+    width: 180,
+    marginRight: SPACING.m,
   },
   categoriesGrid: {
     flexDirection: 'row',
@@ -312,6 +432,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.m,
     justifyContent: 'space-between',
   },
+  // ... (keeping other styles same if not changing, but replace_file_content needs context)
+
   categoryGridItem: {
     width: '48%', // Grid column width
     marginBottom: SPACING.m,
@@ -336,5 +458,169 @@ const styles = StyleSheet.create({
     color: COLORS.secondary,
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  // New Styles
+  promoBanner: {
+      height: 250,
+      marginHorizontal: SPACING.m,
+      marginBottom: SPACING.xl,
+      borderRadius: SPACING.l,
+      overflow: 'hidden',
+      justifyContent: 'center',
+  },
+  promoImage: {
+      ...StyleSheet.absoluteFillObject,
+  },
+  promoOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: SPACING.l,
+  },
+  promoTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 28,
+      color: COLORS.white,
+      textAlign: 'center',
+      marginBottom: SPACING.xs,
+  },
+  promoSubtitle: {
+      fontFamily: FONTS.medium,
+      fontSize: 14,
+      color: COLORS.white,
+      marginBottom: SPACING.l,
+      letterSpacing: 2,
+  },
+  promoButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: COLORS.primary,
+      paddingVertical: SPACING.m,
+      paddingHorizontal: SPACING.l,
+      borderRadius: 30,
+      gap: SPACING.s,
+  },
+  promoButtonText: {
+      fontFamily: FONTS.bold,
+      color: COLORS.white,
+      fontSize: 14,
+      textTransform: 'uppercase',
+  },
+  sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingRight: SPACING.m,
+      marginBottom: SPACING.m,
+  },
+  seeAll: {
+      fontFamily: FONTS.medium,
+      color: COLORS.primary,
+      fontSize: 14,
+  },
+  benefitsGrid: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingHorizontal: SPACING.m,
+      gap: SPACING.s,
+  },
+  benefitItem: {
+      flex: 1,
+      alignItems: 'center',
+      backgroundColor: COLORS.white,
+      padding: SPACING.m,
+      borderRadius: SPACING.m,
+      ...SHADOWS.light,
+  },
+  benefitTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 12,
+      color: COLORS.text,
+      marginTop: SPACING.s,
+      marginBottom: 2,
+      textAlign: 'center',
+  },
+  benefitDesc: {
+      fontFamily: FONTS.regular,
+      fontSize: 10,
+      color: COLORS.textLight,
+      textAlign: 'center',
+  },
+  newsletterSection: {
+      backgroundColor: COLORS.text, // Dark background
+      margin: SPACING.m,
+      borderRadius: SPACING.l,
+      padding: SPACING.xl,
+      alignItems: 'center',
+      marginBottom: 100, // Space for bottom tab bar
+  },
+  newsletterTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 24,
+      color: COLORS.white,
+      marginBottom: SPACING.s,
+      letterSpacing: 2,
+  },
+  newsletterDesc: {
+      fontFamily: FONTS.regular,
+      fontSize: 14,
+      color: '#d1d5db',
+      textAlign: 'center',
+      marginBottom: SPACING.l,
+      lineHeight: 20,
+  },
+  newsletterButton: {
+      backgroundColor: COLORS.white,
+      width: '100%',
+      padding: SPACING.m,
+      borderRadius: 30,
+      alignItems: 'center',
+  },
+  newsletterButtonText: {
+      fontFamily: FONTS.bold,
+      color: COLORS.text,
+      fontSize: 14,
+      letterSpacing: 1,
+  },
+  // Inline Card Styles for Horizontal Scroll
+  inlineCard: {
+      backgroundColor: COLORS.white,
+      borderRadius: SPACING.m,
+      overflow: 'hidden',
+      // height: '100%', // Removed to let card fit content
+      ...SHADOWS.light,
+      marginBottom: 2, // Tiny spacing for shadow
+  },
+  inlineCardImage: {
+      width: '100%',
+      height: 150,
+      backgroundColor: COLORS.surface,
+  },
+  inlineHeart: {
+      position: 'absolute',
+      top: SPACING.s,
+      right: SPACING.s,
+      backgroundColor: COLORS.white,
+      padding: 6,
+      borderRadius: 20,
+      ...SHADOWS.light,
+      zIndex: 1,
+  },
+  inlineDetails: {
+      padding: SPACING.s, // Reduced padding
+      paddingBottom: SPACING.m, 
+  },
+  inlineName: {
+      fontSize: 14,
+      fontFamily: FONTS.bold,
+      fontWeight: 'bold',
+      marginBottom: 4,
+      color: COLORS.text,
+  },
+  inlinePrice: {
+      fontSize: 14,
+      fontFamily: FONTS.regular,
+      color: COLORS.textLight,
   },
 });
