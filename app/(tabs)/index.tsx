@@ -1,4 +1,4 @@
-import { LayoutAnimation, Platform, UIManager, View, Text, ScrollView, StyleSheet, Pressable, FlatList } from 'react-native';
+import { LayoutAnimation, Platform, UIManager, View, Text, ScrollView, StyleSheet, Pressable, FlatList, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -137,9 +137,12 @@ export default function Home() {
     });
   }, []);
 
-  const handleRemoveProduct = (id: string) => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setProducts((prev) => prev.filter((item) => item.id !== id));
+  const handleSubscribe = () => {
+    Alert.alert(
+      "Subscribed!",
+      "Thank you for joining the club. Check your inbox for exclusive offers.",
+      [{ text: "OK" }]
+    );
   };
 
   return (
@@ -276,9 +279,11 @@ export default function Home() {
         <View style={styles.section}>
              <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Trending Now</Text>
-                <Pressable onPress={() => {}}> 
-                     <Text style={styles.seeAll}>See All</Text>
-                </Pressable>
+                <Link href="/listing/all" asChild>
+                    <Pressable> 
+                        <Text style={styles.seeAll}>See All</Text>
+                    </Pressable>
+                </Link>
              </View>
              <FlatList 
                 horizontal
