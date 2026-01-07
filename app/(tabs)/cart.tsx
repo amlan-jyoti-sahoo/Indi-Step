@@ -1,16 +1,18 @@
-import { View, Text, StyleSheet, FlatList, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { COLORS, FONTS, SPACING, SHADOWS } from '../../constants/theme';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../store/store';
 import { incrementQuantity, decrementQuantity, removeFromCart, CartItem } from '../../store/cartSlice';
 import { Image } from 'expo-image';
-import { Trash2, Minus, Plus, ChevronLeft } from 'lucide-react-native';
+import { Trash2, Minus, Plus, ChevronLeft, ShoppingBag } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MotiView } from 'moti';
 
 export default function Cart() {
   const router = useRouter();
   const cartItems = useSelector((state: RootState) => state.cart.items);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
 
   const handleIncrement = (id: string, size: string) => {
@@ -23,6 +25,23 @@ export default function Cart() {
 
   const handleRemove = (id: string, size: string) => {
     dispatch(removeFromCart({ id, size }));
+  };
+
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      Alert.alert(
+        'Login Required',
+        'Please log in to place your order.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Login', onPress: () => router.push('/auth/login') }
+        ]
+      );
+      return;
+    }
+    
+    // Proceed with checkout
+    router.push('/checkout/address');
   };
 
   const calculateTotal = () => {
@@ -41,7 +60,27 @@ export default function Cart() {
   if (cartItems.length === 0) {
     return (
       <View style={styles.center}>
-        <Text style={styles.emptyText}>Your cart is empty.</Text>
+        <MotiView
+          from={{ translateY: 0, opacity: 0.5, scale: 0.9 }}
+          animate={{ translateY: -10, opacity: 1, scale: 1 }}
+          transition={{
+            type: 'timing',
+            duration: 1500,
+            loop: true,
+            repeatReverse: true,
+          }}
+          style={styles.emptyIconContainer}
+        >
+            <View style={styles.circle}>
+                 <ShoppingBag size={60} color={COLORS.primary} />
+            </View>
+        </MotiView>
+        <Text style={styles.emptyTitle}>Your Cart is Empty</Text>
+        <Text style={styles.emptyText}>Looks like you haven't added anything to your cart yet.</Text>
+        
+        <Pressable style={styles.shopNowBtn} onPress={() => router.push('/(tabs)/')}>
+            <Text style={styles.shopNowText}>Start Shopping</Text>
+        </Pressable>
       </View>
     );
   }
@@ -121,7 +160,7 @@ export default function Cart() {
                 
                 <View style={styles.divider} />
                 
-                <Pressable style={styles.checkoutBtn}>
+                <Pressable style={styles.checkoutBtn} onPress={handleCheckout}>
                    <Text style={styles.checkoutText}>Checkout • ₹{finalTotal.toLocaleString('en-IN')}</Text>
                 </Pressable>
             </View>
@@ -141,10 +180,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  emptyIconContainer: {
+      marginBottom: SPACING.l,
+      alignItems: 'center',
+  },
+  circle: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      backgroundColor: '#F0FDF4', // Light green tint
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...SHADOWS.light,
+  },
+  emptyTitle: {
+      fontFamily: FONTS.bold,
+      fontSize: 24,
+      color: COLORS.text,
+      marginBottom: SPACING.s,
+  },
   emptyText: {
     fontFamily: FONTS.medium,
-    fontSize: 16,
+    fontSize: 14,
     color: COLORS.textLight,
+    textAlign: 'center',
+    marginBottom: SPACING.xl,
+    maxWidth: '70%',
+  },
+  shopNowBtn: {
+      backgroundColor: COLORS.primary,
+      paddingHorizontal: SPACING.xl,
+      paddingVertical: SPACING.m,
+      borderRadius: 30,
+      ...SHADOWS.medium,
+  },
+  shopNowText: {
+      fontFamily: FONTS.bold,
+      color: COLORS.white,
+      fontSize: 16,
   },
   header: {
     padding: SPACING.m,
