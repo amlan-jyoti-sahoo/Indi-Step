@@ -85,8 +85,8 @@ export default function Profile() {
            {/* Settings for Guest */}
            <View style={styles.section}>
              <Text style={styles.sectionTitle}>SETTINGS</Text>
-             <MenuItem icon={Settings} title="App Settings" />
-             <MenuItem icon={HelpCircle} title="Help & Support" />
+             <MenuItem icon={Settings} title="App Settings" href="/profile/settings" />
+             <MenuItem icon={HelpCircle} title="Help & Support" href="/profile/support" />
            </View>
 
         </ScrollView>

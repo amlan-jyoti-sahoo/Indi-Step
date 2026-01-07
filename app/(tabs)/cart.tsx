@@ -55,10 +55,10 @@ export default function Cart() {
     return { totalMRP, discount, gst, deliveryFee, finalTotal };
   };
 
+  // Calculate totals regardless of empty state (will be 0)
   const { totalMRP, discount, gst, deliveryFee, finalTotal } = calculateTotal();
 
-  if (cartItems.length === 0) {
-    return (
+  const renderEmptyCart = () => (
       <View style={styles.center}>
         <MotiView
           from={{ translateY: 0, opacity: 0.5, scale: 0.9 }}
@@ -82,49 +82,9 @@ export default function Cart() {
             <Text style={styles.shopNowText}>Start Shopping</Text>
         </Pressable>
       </View>
-    );
-  }
-
-  const renderItem = ({ item }: { item: CartItem }) => (
-    <View style={styles.cartItem}>
-      <Pressable onPress={() => router.push(`/product/${item.id}`)}>
-        <Image source={{ uri: item.image }} style={styles.itemImage} contentFit="cover" />
-      </Pressable>
-      <View style={styles.itemDetails}>
-        <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
-        <Text style={styles.itemCategory}>{item.category} • Size: {item.size}</Text>
-        <Text style={styles.itemPrice}>₹{item.price.toLocaleString('en-IN')}</Text>
-        
-        <View style={styles.quantityContainer}>
-            <View style={styles.counter}>
-                <Pressable onPress={() => handleDecrement(item.id, item.size)} style={styles.counterBtn}>
-                    <Minus size={16} color={COLORS.text} />
-                </Pressable>
-                <Text style={styles.counterText}>{item.quantity}</Text>
-                <Pressable onPress={() => handleIncrement(item.id, item.size)} style={styles.counterBtn}>
-                    <Plus size={16} color={COLORS.text} />
-                </Pressable>
-            </View>
-            <Pressable onPress={() => handleRemove(item.id, item.size)} style={styles.removeBtn}>
-                <Trash2 size={20} color={COLORS.error} />
-            </Pressable>
-        </View>
-      </View>
-    </View>
   );
 
-  return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <ChevronLeft size={24} color={COLORS.text} />
-        </Pressable>
-        <View>
-          <Text style={styles.headerTitle}>Shopping Cart</Text>
-          <Text style={styles.headerSubtitle}>{cartItems.length} items</Text>
-        </View>
-      </View>
-
+  const renderCartContent = () => (
       <FlatList
         data={cartItems}
         keyExtractor={(item) => `${item.id}-${item.size}`}
@@ -166,6 +126,21 @@ export default function Cart() {
             </View>
         }
       />
+  );
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <View style={styles.header}>
+        <Pressable onPress={() => router.back()} style={styles.backButton}>
+          <ChevronLeft size={24} color={COLORS.text} />
+        </Pressable>
+        <View>
+          <Text style={styles.headerTitle}>Shopping Cart</Text>
+          <Text style={styles.headerSubtitle}>{cartItems.length} items</Text>
+        </View>
+      </View>
+
+      {cartItems.length === 0 ? renderEmptyCart() : renderCartContent()}
     </SafeAreaView>
   );
 }
