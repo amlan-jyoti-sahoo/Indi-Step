@@ -34,7 +34,13 @@ export default function Cart() {
         'Please log in to place your order.',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Login', onPress: () => router.push('/auth/login') }
+          { 
+            text: 'Login', 
+            onPress: () => router.push({
+              pathname: '/auth/login',
+              params: { redirect: '/(tabs)/cart' }
+            }) 
+          }
         ]
       );
       return;

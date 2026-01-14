@@ -19,11 +19,11 @@ export default function Success() {
         
         <Text style={styles.info}>You can track your order status in your profile.</Text>
 
-        <Pressable style={styles.primaryButton} onPress={() => router.replace('/orders')}>
+        <Pressable style={styles.primaryButton} onPress={() => router.navigate('/(tabs)/profile')}>
             <Text style={styles.primaryButtonText}>View My Orders</Text>
         </Pressable>
         
-        <Pressable style={styles.secondaryButton} onPress={() => router.replace('/(tabs)/')}>
+        <Pressable style={styles.secondaryButton} onPress={() => router.navigate('/(tabs)/')}>
             <Text style={styles.secondaryButtonText}>Continue Shopping</Text>
         </Pressable>
       </View>

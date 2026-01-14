@@ -1,5 +1,5 @@
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, SPACING, FONTS } from '../../constants/theme';
 import { useState } from 'react';
@@ -14,6 +14,9 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const params = useLocalSearchParams();
+  const redirect = params.redirect as string;
 
   const handleLogin = () => {
     if (!email || !password) {
@@ -35,7 +38,12 @@ export default function Login() {
             savedCards: []
         };
         dispatch(login(dummyUser));
-        router.replace('/(tabs)/profile');
+        
+        if (redirect) {
+            router.replace(redirect as any);
+        } else {
+            router.replace('/(tabs)/profile');
+        }
     }, 1500);
   };
 

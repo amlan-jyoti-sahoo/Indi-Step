@@ -66,7 +66,7 @@ export default function ProductDetail() {
   };
 
   const handleGoToCart = () => {
-      router.push('/(tabs)/cart');
+      router.navigate('/(tabs)/cart');
   };
 
   const buttonStyle = useAnimatedStyle(() => ({
