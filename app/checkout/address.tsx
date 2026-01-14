@@ -45,7 +45,7 @@ export default function Address() {
             <Text style={styles.label}>Full Name</Text>
             <TextInput 
               style={styles.input} 
-              placeholder="Amlanjyoti Sahoo" 
+              placeholder="Enter your full name" 
               placeholderTextColor={COLORS.textLight}
               value={name}
               onChangeText={setName}
@@ -56,11 +56,12 @@ export default function Address() {
             <Text style={styles.label}>Phone Number</Text>
             <TextInput 
               style={styles.input} 
-              placeholder="+91 9876543210" 
+              placeholder="Enter 10-digit number" 
               placeholderTextColor={COLORS.textLight}
               value={phone}
               onChangeText={setPhone}
               keyboardType="phone-pad"
+              maxLength={10}
             />
           </View>
 
@@ -68,7 +69,7 @@ export default function Address() {
             <Text style={styles.label}>Street Address</Text>
             <TextInput 
               style={styles.input} 
-              placeholder="123, Main Street, MG Road" 
+              placeholder="Enter street address" 
               placeholderTextColor={COLORS.textLight}
               value={street}
               onChangeText={setStreet}
@@ -80,7 +81,7 @@ export default function Address() {
                 <Text style={styles.label}>City</Text>
                 <TextInput 
                   style={styles.input} 
-                  placeholder="Bangalore" 
+                  placeholder="Enter city" 
                   placeholderTextColor={COLORS.textLight}
                   value={city}
                   onChangeText={setCity}
@@ -90,11 +91,12 @@ export default function Address() {
                 <Text style={styles.label}>ZIP Code</Text>
                 <TextInput 
                   style={styles.input} 
-                  placeholder="560001" 
+                  placeholder="Enter 6-digit PIN" 
                   placeholderTextColor={COLORS.textLight}
                   value={zip}
                   onChangeText={setZip}
                   keyboardType="numeric"
+                  maxLength={6}
                 />
               </View>
           </View>
