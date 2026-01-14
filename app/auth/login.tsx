@@ -6,6 +6,9 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
 import { ChevronLeft } from 'lucide-react-native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../config/firebase';
 
 export default function Login() {
   const router = useRouter();
@@ -18,33 +21,58 @@ export default function Login() {
   const params = useLocalSearchParams();
   const redirect = params.redirect as string;
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        setLoading(false);
-        const dummyUser = {
-            id: 'u123',
-            name: 'Amlanjyoti Sahoo',
-            email: email,
-            memberLevel: 'Silver' as const,
-            joinedDate: new Date().toISOString(),
-            addresses: [],
-            savedCards: []
-        };
-        dispatch(login(dummyUser));
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
         
-        if (redirect) {
-            router.replace(redirect as any);
+        const userDocRef = doc(db, "users", uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists()) {
+            const userData = userDoc.data() as any;
+            if (!userData.id) userData.id = uid; 
+            
+            dispatch(login(userData));
+            
+            if (redirect) {
+                router.replace(redirect as any);
+            } else {
+                router.replace('/(tabs)/profile');
+            }
         } else {
-            router.replace('/(tabs)/profile');
+            // User exists in Auth but not in Firestore (e.g. manually created or legacy)
+            // Create default profile
+            const newUser = {
+                id: uid,
+                name: 'User', // Default name
+                email: email,
+                memberLevel: 'Silver',
+                joinedDate: new Date().toISOString(),
+                addresses: [],
+                savedCards: []
+            };
+            
+            await setDoc(doc(db, "users", uid), newUser);
+            dispatch(login(newUser));
+            
+            if (redirect) {
+                router.replace(redirect as any);
+            } else {
+                router.replace('/(tabs)/profile');
+            }
         }
-    }, 1500);
+    } catch (error: any) {
+        Alert.alert('Login Failed', error.message);
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (

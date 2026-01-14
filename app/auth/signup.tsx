@@ -6,6 +6,9 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { signup } from '../../store/authSlice';
 import { ChevronLeft } from 'lucide-react-native';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
+import { auth, db } from '../../config/firebase';
 
 export default function Signup() {
   const router = useRouter();
@@ -16,18 +19,24 @@ export default function Signup() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!name || !email || !password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        setLoading(false);
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const uid = userCredential.user.uid;
+        
+        // Update Auth Profile with Name
+        await updateProfile(userCredential.user, {
+            displayName: name
+        });
+        
         const newUser = {
-            id: 'u_' + Date.now(),
+            id: uid,
             name: name,
             email: email,
             memberLevel: 'Silver' as const,
@@ -35,9 +44,17 @@ export default function Signup() {
             addresses: [],
             savedCards: []
         };
+        
+        // Create user document in Firestore
+        await setDoc(doc(db, "users", uid), newUser);
+        
         dispatch(signup(newUser));
         router.replace('/(tabs)/profile');
-    }, 1500);
+    } catch (error: any) {
+        Alert.alert('Signup Failed', error.message);
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
@@ -61,6 +78,8 @@ export default function Signup() {
               placeholderTextColor={COLORS.textLight}
               value={name}
               onChangeText={setName}
+              autoCorrect={false}
+              spellCheck={false}
             />
           </View>
 

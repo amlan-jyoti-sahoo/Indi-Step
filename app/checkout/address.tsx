@@ -49,6 +49,8 @@ export default function Address() {
               placeholderTextColor={COLORS.textLight}
               value={name}
               onChangeText={setName}
+              autoCorrect={false}
+              spellCheck={false}
             />
           </View>
           

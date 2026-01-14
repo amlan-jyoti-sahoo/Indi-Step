@@ -21,8 +21,11 @@ const wishlistSlice = createSlice({
         state.items.push(action.payload);
       }
     },
+    setWishlist: (state, action: PayloadAction<Product[]>) => {
+        state.items = action.payload || [];
+    },
   },
 });
 
-export const { toggleWishlist } = wishlistSlice.actions;
+export const { toggleWishlist, setWishlist } = wishlistSlice.actions;
 export default wishlistSlice.reducer;
