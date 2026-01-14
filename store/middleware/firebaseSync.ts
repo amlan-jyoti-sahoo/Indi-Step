@@ -49,5 +49,25 @@ export const firebaseSyncMiddleware: Middleware = store => next => async action 
     }
   }
 
+  // Sync Auth Data (Addresses & Saved Cards)
+  if (type.startsWith('auth/') && !type.includes('login') && !type.includes('logout') && !type.includes('signup')) {
+      const userState = (state as any).auth.user;
+      if (userState) {
+          try {
+              // We just sync the whole user object fields that are relevant
+              // This covers addAddress, removeAddress, addCard, removeCard, updateProfile
+              await updateDoc(doc(db, "users", user.uid), {
+                  addresses: userState.addresses || [],
+                  savedCards: userState.savedCards || [],
+                  name: userState.name,
+                  phone: userState.phone || null,
+                  // Add other fields if necessary
+              });
+          } catch (e) {
+              console.error("Sync Auth Error", e);
+          }
+      }
+  }
+
   return result;
 };

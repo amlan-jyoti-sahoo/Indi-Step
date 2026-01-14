@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { updateProfile } from '../../store/authSlice';
 import { ChevronLeft } from 'lucide-react-native';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../config/firebase';
 
 export default function PersonalDetails() {
   const router = useRouter();
@@ -17,20 +19,33 @@ export default function PersonalDetails() {
   const [phone, setPhone] = useState(user?.phone || '');
   const [loading, setLoading] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name) {
       Alert.alert('Error', 'Name is required');
       return;
     }
 
+    if (!user?.id) return;
+
     setLoading(true);
-    // Simulate API delay
-    setTimeout(() => {
+    try {
+        // Update Firestore first
+        await updateDoc(doc(db, "users", user.id), {
+            name: name,
+            phone: phone
+        });
+        
+        // Then update local state
         dispatch(updateProfile({ name, phone }));
-        setLoading(false);
+        
         Alert.alert('Success', 'Profile updated successfully');
         router.back();
-    }, 1000);
+    } catch (error: any) {
+        console.error("Profile Update Error", error);
+        Alert.alert('Error', 'Failed to update profile: ' + error.message);
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
