@@ -27,7 +27,7 @@ export default function Login() {
         setLoading(false);
         const dummyUser = {
             id: 'u123',
-            name: 'John Doe',
+            name: 'Amlanjyoti Sahoo',
             email: email,
             memberLevel: 'Silver' as const,
             joinedDate: new Date().toISOString(),

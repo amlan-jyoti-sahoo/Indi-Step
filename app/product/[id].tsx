@@ -342,8 +342,8 @@ const styles = StyleSheet.create({
   },
   addToCartButton: {
     backgroundColor: COLORS.primary,
-    paddingVertical: 18,
-    borderRadius: 30,
+    paddingVertical: 16, // Reduced padding
+    borderRadius: 100, // Full pill
     alignItems: 'center',
   },
   actionRow: {
@@ -355,8 +355,8 @@ const styles = StyleSheet.create({
   goToCartButton: {
     flex: 1,
     backgroundColor: COLORS.secondary,
-    paddingVertical: 18,
-    borderRadius: 30,
+    paddingVertical: 16, // Reduced padding
+    borderRadius: 100, // Full pill
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.primary,
@@ -365,14 +365,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.surface,
-    padding: 6,
-    borderRadius: 30,
-    height: 60,
+    padding: 5, // Slightly reduced padding
+    borderRadius: 100, // Full pill
+    height: 54, // Reduced height
   },
   qtyBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44, // Reduced size
+    height: 44, // Reduced size
+    borderRadius: 22, // Round
     backgroundColor: COLORS.white,
     justifyContent: 'center',
     alignItems: 'center',
@@ -387,16 +387,16 @@ const styles = StyleSheet.create({
   },
   addToCartText: {
     color: COLORS.secondary,
-    fontSize: 18,
+    fontSize: 16, // Reduced size
     fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+    // Removed uppercase
   },
   goToCartText: {
     color: COLORS.primary,
-    fontSize: 18,
+    fontSize: 16, // Reduced size
     fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+    // Removed uppercase
   },
 });

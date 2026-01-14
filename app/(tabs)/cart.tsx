@@ -84,6 +84,35 @@ export default function Cart() {
       </View>
   );
 
+  const renderItem = ({ item }: { item: CartItem }) => (
+    <View style={styles.cartItem}>
+      <Image source={item.image} style={styles.itemImage} contentFit="cover" />
+      <View style={styles.itemDetails}>
+        <View>
+          <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
+          <Text style={styles.itemCategory}>Size: {item.size}</Text>
+          <Text style={styles.itemPrice}>₹{item.price.toLocaleString('en-IN')}</Text>
+        </View>
+
+        <View style={styles.quantityContainer}>
+          <View style={styles.counter}>
+            <Pressable onPress={() => handleDecrement(item.id, item.size)} style={styles.counterBtn}>
+              <Minus size={16} color={COLORS.text} />
+            </Pressable>
+            <Text style={styles.counterText}>{item.quantity}</Text>
+            <Pressable onPress={() => handleIncrement(item.id, item.size)} style={styles.counterBtn}>
+               <Plus size={16} color={COLORS.text} />
+            </Pressable>
+          </View>
+
+          <Pressable onPress={() => handleRemove(item.id, item.size)} style={styles.removeBtn}>
+            <Trash2 size={20} color={COLORS.error} />
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
+
   const renderCartContent = () => (
       <FlatList
         data={cartItems}
@@ -185,14 +214,14 @@ const styles = StyleSheet.create({
   shopNowBtn: {
       backgroundColor: COLORS.primary,
       paddingHorizontal: SPACING.xl,
-      paddingVertical: SPACING.m,
-      borderRadius: 30,
+      paddingVertical: 16, // Standardized padding
+      borderRadius: 100, // Full pill
       ...SHADOWS.medium,
   },
   shopNowText: {
       fontFamily: FONTS.bold,
       color: COLORS.white,
-      fontSize: 16,
+      fontSize: 16, // Standardized font size
   },
   header: {
     padding: SPACING.m,
@@ -336,17 +365,17 @@ const styles = StyleSheet.create({
   },
   checkoutBtn: {
     backgroundColor: COLORS.primary,
-    padding: 18,
-    borderRadius: 30,
+    padding: 16, // Reduced padding
+    borderRadius: 100, // Full pill shape
     alignItems: 'center',
     marginTop: SPACING.xl,
     marginBottom: SPACING.m,
   },
   checkoutText: {
     color: COLORS.secondary,
-    fontSize: 18,
+    fontSize: 16, // Reduced font size
     fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    // Removed uppercase textTransform
+    letterSpacing: 0.5, // Reduced letter spacing slightly
   },
 });

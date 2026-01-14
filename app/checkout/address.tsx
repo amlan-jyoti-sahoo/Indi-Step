@@ -45,7 +45,7 @@ export default function Address() {
             <Text style={styles.label}>Full Name</Text>
             <TextInput 
               style={styles.input} 
-              placeholder="John Doe" 
+              placeholder="Amlanjyoti Sahoo" 
               placeholderTextColor={COLORS.textLight}
               value={name}
               onChangeText={setName}
